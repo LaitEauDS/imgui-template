@@ -18,13 +18,15 @@ ChessBoard::ChessBoard()
     m_board[7] = std::make_unique<Rook>(Color::White);
     m_board[56] = std::make_unique<Rook>(Color::Black);
     m_board[63] = std::make_unique<Rook>(Color::Black);
+    
+    
 }
 
 void ChessBoard::display_board()
 {
-    ImVec4 whiteColor = ImVec4(234.0f / 255.0f, 233.0f / 255.0f, 210.0f / 255.0f, 1.0f); // #EAE9D2
-    ImVec4 blackColor = ImVec4(75.0f / 255.0f, 115.0f / 255.0f, 153.0f / 255.0f, 1.0f);  // #4B7399
-    ImVec4 hoverColor = ImVec4(0.0f, 1.0f, 0.0f, 1.0f);
+    ImVec4 whiteColor = ImVec4(238.0f / 255.0f, 238.0f / 255.0f, 212.0f / 255.0f, 1.0f); // #EEEED4
+    ImVec4 blackColor = ImVec4(86.0f / 255.0f, 151.0f / 255.0f, 147.0f / 255.0f, 1.0f);  // #569793
+    ImVec4 hoverColor = ImVec4(23.0f / 255.0f, 229.0f / 255.0f, 135.0f / 255.0f, 1.0f); // #17E587
 
     for (int x = 0; x < 8; x++)
     {
@@ -37,26 +39,25 @@ void ChessBoard::display_board()
             ImGui::PushStyleColor(ImGuiCol_Button, backgroundColor);
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, hoverColor);
 
+            std::string label = "";
             if (m_board[index])
             {
-                std::string label = "P";
                 switch (m_board[index]->get_type()) {
-                    case PieceType::Pawn: label = "P";break;
-                    case PieceType::Rook: label = "R";break;
+                    case PieceType::Pawn: label = (m_board[index]->get_color() == Color::White) ? "p" : "o"; break;
+                    case PieceType::Rook: label = (m_board[index]->get_color() == Color::White) ? "r" : "t"; break;
                     default: label = "?"; break;
                 }
-
-                if (ImGui::Button(label.c_str(), ImVec2{70.f, 70.f})) {
-                    std::cout << "Position : " << index << "\n";
-                }
             }
-            else
-            {
-                ImGui::Button(" ", ImVec2{70.f, 70.f});
+            if (m_chessFont) 
+                ImGui::PushFont(m_chessFont);
+            if (ImGui::Button(label.c_str(), ImVec2{70.f, 70.f})) {
+                std::cout << "Position : " << index << "\n";
             }
+            if (m_chessFont) 
+                ImGui::PopFont();
 
             ImGui::PopStyleColor(2);
-            if (y != 7)
+            if (y != 7) 
                 ImGui::SameLine();
             ImGui::PopID();
         }
