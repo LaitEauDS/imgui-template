@@ -1,5 +1,6 @@
 #include "ChessBoard.hpp"
 #include "Pawn.hpp"
+#include "Rook.hpp"
 #include <imgui.h>
 #include <cstddef>
 #include <iostream>
@@ -12,6 +13,11 @@ ChessBoard::ChessBoard()
         m_board[i] = std::make_unique<Pawn>(Color::White);
     for (int i = 48; i < 56; i++)
         m_board[i] = std::make_unique<Pawn>(Color::Black);
+
+    m_board[0] = std::make_unique<Rook>(Color::White);
+    m_board[7] = std::make_unique<Rook>(Color::White);
+    m_board[56] = std::make_unique<Rook>(Color::Black);
+    m_board[63] = std::make_unique<Rook>(Color::Black);
 }
 
 void ChessBoard::display_board()
@@ -34,8 +40,13 @@ void ChessBoard::display_board()
             if (m_board[index])
             {
                 std::string label = "P";
-                if (ImGui::Button(label.c_str(), ImVec2{70.f, 70.f})) // à remplacer par un switch case sur le type
-                {
+                switch (m_board[index]->get_type()) {
+                    case PieceType::Pawn: label = "P";break;
+                    case PieceType::Rook: label = "R";break;
+                    default: label = "?"; break;
+                }
+
+                if (ImGui::Button(label.c_str(), ImVec2{70.f, 70.f})) {
                     std::cout << "Position : " << index << "\n";
                 }
             }
