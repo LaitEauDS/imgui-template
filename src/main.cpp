@@ -13,7 +13,7 @@ int main()
             ImGui::CreateContext();
             ImGuiIO& io = ImGui::GetIO();
             io.Fonts->AddFontDefault();
-            ImFont* chessFont = io.Fonts->AddFontFromFileTTF("/Users/leode/Desktop/Dossier cours/IMAC2/imgui-template/src/fonts/CONDFONT.ttf", 48.0f);
+            ImFont* chessFont = io.Fonts->AddFontFromFileTTF("/Users/leode/Desktop/Dossier cours/IMAC2/imgui-template/src/fonts/MVALFONT.ttf", 48.0f);
             ImGui::GetStyle().ItemSpacing = ImVec2(0.0f, 0.0f);
 
             chessboard.setFont(chessFont);

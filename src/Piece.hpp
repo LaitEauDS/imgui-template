@@ -24,7 +24,8 @@ class Piece {
     Piece(Color color, PieceType type) : m_color(color), m_type(type) {}
     ~Piece() = default;
 
-    std::vector<int> get_possible_moves(int position, const std::array<Piece*, 64>& board) const;
+    virtual std::vector<int> get_possible_moves(int position, const std::array<Piece*, 64>& board) const = 0;
+
     char get_symbol() const;
 
     Color get_color() const { return m_color; }
