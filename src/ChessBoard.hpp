@@ -11,7 +11,12 @@ class ChessBoard{
     int m_selectedPieceIndex;
     Color m_current_color = Color::White;
     ImFont* m_chessFont = nullptr;
-    
+    bool m_gameOver = false;
+    std::string m_winnerMessage = "";
+    bool m_showVictoryPopup = false;
+    bool m_showPromotionPopup = false;
+    int m_pawnToPromoteIndex = -1;
+    Color m_promotionColor;  
 
     public:
     ChessBoard();

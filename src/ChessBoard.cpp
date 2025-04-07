@@ -58,6 +58,10 @@ void ChessBoard::display_board()
         boardPtrs[i] = m_board[i] ? m_board[i].get() : nullptr;
     }
 
+    if (ImGui::IsMouseClicked(ImGuiMouseButton_Right)) {
+        m_selectedPieceIndex = -1;
+    }
+
     for (int x = 0; x < 8; x++)
     {
         for (int y = 0; y < 8; y++)
@@ -117,18 +121,47 @@ void ChessBoard::display_board()
                 ImGui::PushStyleColor(ImGuiCol_Text, textColor);
             }
 
-            if (ImGui::Button(label.c_str(), ImVec2{70.f, 70.f})) {
-                if (m_board[index] && m_board[index]->get_color() == m_current_color) {
-                    m_selectedPieceIndex = index;
-                }
-                else if (
-                    m_selectedPieceIndex != -1 &&
-                    std::find(possibleMoves.begin(), possibleMoves.end(), index) != possibleMoves.end()
-                ) {
-                    m_board[index] = std::move(m_board[m_selectedPieceIndex]);
-                    m_selectedPieceIndex = -1;
-                
-                    m_current_color = (m_current_color == Color::White) ? Color::Black : Color::White;
+            if (!m_gameOver && ImGui::Button(label.c_str(), ImVec2{70.f, 70.f})) {
+                if (m_selectedPieceIndex == -1) {
+                    if (m_board[index] && m_board[index]->get_color() == m_current_color) {
+                        m_selectedPieceIndex = index;
+                    }
+                } else {
+                    if (std::find(possibleMoves.begin(), possibleMoves.end(), index) != possibleMoves.end()) {
+                        if (m_board[index] && m_board[index]->get_type() == PieceType::King) {
+                            m_gameOver = true;
+                            m_winnerMessage = (m_current_color == Color::White) ? "Les Blancs ont gagnés" : "Les Noirs ont gagnés";
+                            m_showVictoryPopup = true;
+                        }
+
+                        bool isPromotion = false;
+            
+                        if (m_board[m_selectedPieceIndex]->get_type() == PieceType::Pawn) {
+                            int row = index / 8;
+                            if ((m_board[m_selectedPieceIndex]->get_color() == Color::White && row == 0) ||
+                                (m_board[m_selectedPieceIndex]->get_color() == Color::Black && row == 7)) {
+                                isPromotion = true;
+                            }
+                        }
+                        
+                        if (isPromotion) {
+                            m_pawnToPromoteIndex = index;
+                            m_promotionColor = m_board[m_selectedPieceIndex]->get_color();
+                            m_board[index] = std::move(m_board[m_selectedPieceIndex]);
+                            m_board[m_selectedPieceIndex] = nullptr;
+                            m_showPromotionPopup = true;
+                            m_selectedPieceIndex = -1;
+                        } else {
+                            m_board[index] = std::move(m_board[m_selectedPieceIndex]);
+                            m_selectedPieceIndex = -1;
+                        }
+
+                        m_selectedPieceIndex = -1;
+                        m_current_color = (m_current_color == Color::White) ? Color::Black : Color::White;
+
+                    } else if (m_board[index] && m_board[index]->get_color() == m_current_color) {
+                        m_selectedPieceIndex = index;
+                    }
                 }
             }
 
@@ -143,4 +176,55 @@ void ChessBoard::display_board()
             ImGui::PopID();
         }
     }
+    if (m_showVictoryPopup) {
+        ImGui::OpenPopup("Fin de la partie");
+    }
+    
+    if (ImGui::BeginPopupModal("Fin de la partie", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("%s", m_winnerMessage.c_str());
+        ImGui::EndPopup();
+    }
+
+    if (m_showPromotionPopup) {
+        ImGui::OpenPopup("Promotion");
+    }
+    
+    if (ImGui::BeginPopupModal("Promotion", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+    {
+        ImGui::Text("Choisir une pièce pour la promotion :");
+    
+        auto promote = [&](PieceType type) {
+            switch (type) {
+                case PieceType::Queen:
+                    m_board[m_pawnToPromoteIndex] = std::make_unique<Queen>(m_promotionColor);
+                    break;
+                case PieceType::Rook:
+                    m_board[m_pawnToPromoteIndex] = std::make_unique<Rook>(m_promotionColor);
+                    break;
+                case PieceType::Bishop:
+                    m_board[m_pawnToPromoteIndex] = std::make_unique<Bishop>(m_promotionColor);
+                    break;
+                case PieceType::Knight:
+                    m_board[m_pawnToPromoteIndex] = std::make_unique<Knight>(m_promotionColor);
+                    break;
+                default: break;
+            }
+    
+            m_showPromotionPopup = false;
+            m_pawnToPromoteIndex = -1;
+            ImGui::CloseCurrentPopup();
+        };
+    
+        if (ImGui::Button("Dame")) promote(PieceType::Queen);
+        ImGui::SameLine();
+        if (ImGui::Button("Tour")) promote(PieceType::Rook);
+        ImGui::SameLine();
+        if (ImGui::Button("Fou")) promote(PieceType::Bishop);
+        ImGui::SameLine();
+        if (ImGui::Button("Cavalier")) promote(PieceType::Knight);
+    
+        ImGui::EndPopup();
+    }
+    
 }
