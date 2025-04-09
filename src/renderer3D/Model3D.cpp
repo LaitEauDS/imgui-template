@@ -1,4 +1,5 @@
 #include "Model3D.hpp"
+#include <cstddef>
 #include <iostream>
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float2.hpp"
@@ -43,14 +44,18 @@ void Model3D::setup_buffers()
     m_vao.unbind();
 }
 
-void Model3D::fill_matrices(std::vector<int> indices)
+void Model3D::fill_matrices(std::array<std::unique_ptr<Piece>, 64>&board)
 {
-    for (int index : indices)
+    m_model_matrices.clear(); //on clear pour s'assurer de bien toujours avoir un nombre correcte de matrices. (et pas les accumuler)
+    for (size_t i{0}; i < board.size(); i++)
     {
-        glm::vec2 position2D = from_index_to_2D_pos(index);
-        glm::vec3 position3D = from_2D_pos_to_3D_pos(position2D);
-        glm::mat4 matrice_piece = glm::translate(glm::mat4(1.0f),position3D);
-        m_model_matrices.push_back(matrice_piece);
+        if (board[i])
+        {
+            glm::vec2 position2D = from_index_to_2D_pos(i);
+            glm::vec3 position3D = from_2D_pos_to_3D_pos(position2D);
+            glm::mat4 matrice_piece = glm::translate(glm::mat4(1.0f),position3D);
+            m_model_matrices.push_back(matrice_piece);
+        }
     }
 }
 

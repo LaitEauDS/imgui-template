@@ -19,7 +19,7 @@ int main()
     //
     Model3D chessboard3D;
     Model3D bishop;
-    std::vector<int> bishop_indices{8,9,10,11,12,13,14,15,63};
+
     //chess2D
     ChessBoard chessboard{};
 
@@ -46,10 +46,10 @@ int main()
             //Bishop
             bishop.load_mesh("bishop/bishop.obj", "bishop");
             bishop.setup_buffers();
-            bishop.fill_matrices(bishop_indices);
-          
-         },
-            .loop                     = [&]() {
+            
+        },
+        .loop                     = [&]() {
+            bishop.fill_matrices(chessboard.get_board());
 
                 //chess2D
 
