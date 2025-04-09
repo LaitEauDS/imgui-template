@@ -1,0 +1,12 @@
+# Blender 4.2.0 MTL File: 'leo_chess.blend'
+# www.blender.org
+
+newmtl FUN_COLOR
+Ka 1.000000 1.000000 1.000000
+Kd 0.546271 0.231198 0.800702
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Ns /Users/smallboyc/Desktop/LEO_3D_MODEL/textures/Pawn_Roughness.png
