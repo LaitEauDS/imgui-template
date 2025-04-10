@@ -41,6 +41,7 @@ int main()
 
             //Renderer3D
             shader.load_shader("model.vs.glsl", "model.fs.glsl");
+            model_manager.init_chessboard();
             model_manager.init_pieces_positions_in_board(chessboard.get_board());
             model_manager.load_all_meshes();  
         },
