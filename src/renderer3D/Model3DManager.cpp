@@ -1,10 +1,11 @@
 #include "Model3DManager.hpp"
+#include "glm/ext/matrix_transform.hpp"
 
 void Model3DManager::clear_pieces_positions_in_board()
 {
     for (auto& [type, model] : m_pieces)
     {
-        model.clear_matrices();
+        model.clear_data();
     }
 }
 
@@ -17,13 +18,12 @@ void Model3DManager::init_pieces_positions_in_board(std::array<std::unique_ptr<P
         if (board[i])
         {
             PieceType piece_type = board[i]->get_type();
-            // Color piece_color = board[i]->get_color();
-
+            Color piece_color = board[i]->get_color();
             glm::vec2 position2D    = from_index_to_2D_pos(i);
             glm::vec3 position3D    = from_2D_pos_to_3D_pos(position2D);
-            glm::mat4 matrice_piece = glm::translate(glm::mat4(1.0f), position3D);
-
-            m_pieces[piece_type].push_matrix(matrice_piece);
+            glm::mat4 piece_matrice = glm::translate(glm::mat4(1.0f), position3D);
+            //
+            m_pieces[piece_type].push_data({.model_matrix=piece_matrice, .color=piece_color});
         }
     }
 }
