@@ -1,24 +1,66 @@
 #include "Renderer.hpp"
+#include "GLFW/glfw3.h"
+#include "chess2D/ChessBoard.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
+#include "renderer3D/utils.hpp"
 
+//On initialise le shader, la caméra, l'échiquier et les pièces
 void Renderer::init(std::array<std::unique_ptr<Piece>, 64>& board)
 {
-    // renderer3D
+    // load du classic shader
     classic_shader.load_shader("model.vs.glsl", "model.fs.glsl");
+    //Initialisation du chessboard et des pièces
     model_manager.init_chessboard();
     model_manager.init_pieces_positions_in_board(board);
+    //On charge tous les meshs (1 fois uniquement à l'initialisation)
     model_manager.load_all_meshes();
-    // shader
+
+
+    // load du skybox shader
     skybox_shader.load_shader("skybox.vs.glsl", "skybox.fs.glsl");
+    //Initialisation de la skybox
     skybox.load_cube_maps();
     skybox.setup_buffers();
 }
 
-void Renderer::update(std::array<std::unique_ptr<Piece>, 64>& board)
+//Update met à jour la position des pièces sur l'échiquier APRES l'animation déclenché par le mouvement d'une pièce
+void Renderer::update(std::array<std::unique_ptr<Piece>, 64>& board, std::optional<Move> &move)
 {
-    model_manager.init_pieces_positions_in_board(board);
+    //Si le joueur a cliqué sur une case, on lance l'animation.
+    if (move.has_value())
+    {
+        //On garde en mémoire le temps de début de l'animation (une seule fois au début)
+        if (start_animation_time == 0.0)
+        {
+            start_animation_time = glfwGetTime();
+        }
+        //On calcule le temps écoulé depuis le début de l'animation
+        double elapsed_time = glfwGetTime() - start_animation_time;
+
+        //Si l'animation n'est pas terminée, on interpole la position de la pièce entre la position de départ et la position d'arrivée
+        if (elapsed_time < end_animation_time)
+        {
+            //animation
+            double t = elapsed_time / end_animation_time;
+            glm::vec3 start_pos = from_2D_pos_to_3D_pos(from_index_to_2D_pos(move->from));
+            glm::vec3 end_pos   = from_2D_pos_to_3D_pos(from_index_to_2D_pos(move->to));
+            glm::vec3 interpolated_pos = glm::mix(start_pos, end_pos, t);
+            model_manager.move_piece(move->piece_type_to_move, interpolated_pos, move->from);
+        }
+        else
+        {
+            //+ on remet à zéro le temps de début de l'animation
+            //+ on reset l'optional
+            //Quand l'animation est terminée, on met à jour la position (modèle matrice)
+            start_animation_time = 0.0;
+            move.reset();
+            model_manager.init_pieces_positions_in_board(board);
+        }
+        
+    }
 }
 
+// On render la skybox avec skybox_shader, (l'échiquier et toutes les pièces avec classic_shader)
 void Renderer::render()
 {
        
@@ -49,6 +91,8 @@ void Renderer::render()
         // RENDER SKYBOX (end)
 
 
+
+
         // RENDER OBJECTS
         classic_shader.use();
 
@@ -65,13 +109,24 @@ void Renderer::render()
 
         // MODEL RENDER
         model_manager.render(classic_shader);
+
 }
 
+
+//callbacks
 void Renderer::cursor_position_callback(double xpos, double ypos)
 {
-    camera.process_mouse_movement(xpos, ypos);
+        camera.track_ball_move_callback(xpos, ypos);
 }
 void Renderer::scroll_callback(double xoffset, double yoffset)
 {
     camera.process_scroll(yoffset);
+}
+
+void Renderer::key_callback(int key, int scancode, int action, int mods)
+{
+    if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    {
+        camera.toggle_lock();
+    };
 }

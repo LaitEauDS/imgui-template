@@ -152,6 +152,9 @@ void ChessBoard::display_board()
                             m_showPromotionPopup = true;
                             m_selectedPieceIndex = -1;
                         } else {
+                            //Envoi d'une structure de mouvement au renderer 3D lorsque l'on clique sur une case
+                            m_move = {.piece_type_to_move= m_board[m_selectedPieceIndex]->get_type(), .from=m_selectedPieceIndex, .to=index};
+                            //
                             m_board[index] = std::move(m_board[m_selectedPieceIndex]);
                             m_selectedPieceIndex = -1;
                         }

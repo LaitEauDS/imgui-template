@@ -1,17 +1,17 @@
 #include "Model3D.hpp"
 #include <cstddef>
-#include <iostream>
 #include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/vector_float2.hpp"
 #include "glm/fwd.hpp"
 #include "utils.hpp"
 
 
+//On charge le mesh de la pièce
 void Model3D::load_mesh(const std::string& path, const std::string& name)
 {
     m_mesh.load(path, name);
 }
 
+//On remplit les buffers (VBO, EBO, VAO) avec les données du mesh
 void Model3D::setup_buffers()
 {
     // Lier et configurer les buffers pour les pions (VBO, EBO)
@@ -44,7 +44,22 @@ void Model3D::setup_buffers()
     m_vao.unbind();
 }
 
-// render mon mesh
+
+// On met à jour la matrice modèle de la pièce correspondante
+void Model3D::move(glm::vec3 new_pos, int index)
+{
+    for (auto& data : m_model_data)
+    {
+        //on trouve la bonne matrice modèle grâce à l'index de la pièce (data.index_board == from)
+        if (data.index_board == index)
+        {
+            data.model_matrix = glm::translate(glm::mat4(1.0f), new_pos);
+            break;
+        }
+    }
+}
+
+// On dessine le bon modèle 3D.
 void Model3D::render(glmax::Shader& shader) const
 {
     m_vao.bind();
@@ -86,11 +101,13 @@ void Model3D::render(glmax::Shader& shader) const
     m_vao.unbind();
 }
 
+// On remplit la donnée (matrice modèle, index de la pièce, couleur) correspondant à la pièce
 void Model3D::push_data(const ModelData& data)
 {
     m_model_data.push_back(data);
 }
 
+// On vide les données de la pièce (utile lorsqu'on va ensuite remettre à jour les positions des pièces via le chessboard 2D)
 void Model3D::clear_data()
 {
     m_model_data.clear();

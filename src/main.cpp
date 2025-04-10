@@ -30,14 +30,14 @@ int main()
                 chessboard.display_board();
                 ImGui::End();
                 // renderer3D
-                renderer.update(chessboard.get_board());
+                renderer.update(chessboard.get_board(), chessboard.get_move());
                 renderer.render();
             },
-            .key_callback             = [&](int key, int scancode, int action, int mods) { std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Mods: " << mods << '\n'; },
-            .mouse_button_callback    = [&](int button, int action, int mods) { std::cout << "Button: " << button << " Action: " << action << " Mods: " << mods << '\n'; },
+            .key_callback             = [&](int key, int scancode, int action, int mods) { renderer.key_callback(key, scancode, action, mods); },
+            .mouse_button_callback    = [&](int button, int action, int mods) { },
             .cursor_position_callback = [&](double xpos, double ypos) { renderer.cursor_position_callback(xpos, ypos); },
             .scroll_callback          = [&](double xoffset, double yoffset) { renderer.scroll_callback(xoffset, yoffset); },
-            .window_size_callback     = [&](int width, int height) { std::cout << "Resized: " << width << ' ' << height << '\n'; },
+            .window_size_callback     = [&](int width, int height) {},
         }
     );
 }

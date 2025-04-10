@@ -13,6 +13,7 @@ public:
     //models (pieces + chessboard)
     void load_all_meshes();
     void render(glmax::Shader& shader) const;
+    void move_piece(PieceType piece_type, glm::vec3 new_pos, int index);
 
 private:
     Model3D                                m_chessboard;

@@ -3,6 +3,7 @@
 #include "chess2D/Piece.hpp"
 
 struct ModelData{
+    int index_board;
     glm::mat4 model_matrix;
     Color color;
 };
