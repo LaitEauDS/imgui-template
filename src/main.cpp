@@ -3,11 +3,11 @@
 #include <iostream>
 #include "Camera.hpp"
 #include "chess2D/ChessBoard.hpp"
-#include "renderer3D/Model3D.hpp"
 #include "Shader.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/fwd.hpp"
 #include "quick_imgui/quick_imgui.hpp"
+#include "renderer3D/Model3DManager.hpp"
 
 int main()
 {
@@ -17,11 +17,12 @@ int main()
     glmax::Shader shader;
     glmax::Camera camera{true};
     //
-    Model3D chessboard3D;
-    Model3D bishop;
+
 
     //chess2D
     ChessBoard chessboard{};
+    //renderer3D
+    Model3DManager model_manager;
 
     
 
@@ -40,17 +41,11 @@ int main()
 
             //Renderer3D
             shader.load_shader("model.vs.glsl", "model.fs.glsl");
-            //Chessboard
-            chessboard3D.load_mesh("chessboard/chessboard.obj", "chessboard");
-            chessboard3D.setup_buffers();
-            //Bishop
-            bishop.load_mesh("bishop/bishop.obj", "bishop");
-            bishop.setup_buffers();
-            
+            model_manager.init_pieces_positions_in_board(chessboard.get_board());
+            model_manager.load_all_meshes();  
         },
-        .loop                     = [&]() {
-            bishop.fill_matrices(chessboard.get_board());
-
+        .loop                     = [&]() {  
+            model_manager.init_pieces_positions_in_board(chessboard.get_board());
                 //chess2D
 
             ImGui::Begin("Lait-Eau's ChessGame");
@@ -81,8 +76,8 @@ int main()
                 //UPDATE POSITIONS
 
                 //MODEL RENDER
-                chessboard3D.render(shader);
-                bishop.render(shader); 
+                model_manager.render(shader);
+               
         },
             .key_callback             = [&](int key, int scancode, int action, int mods) { std::cout << "Key: " << key << " Scancode: " << scancode << " Action: " << action << " Mods: " << mods << '\n'; },
             .mouse_button_callback    = [&](int button, int action, int mods) { std::cout << "Button: " << button << " Action: " << action << " Mods: " << mods << '\n'; },

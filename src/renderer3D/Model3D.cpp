@@ -44,20 +44,23 @@ void Model3D::setup_buffers()
     m_vao.unbind();
 }
 
-void Model3D::fill_matrices(std::array<std::unique_ptr<Piece>, 64>&board)
-{
-    m_model_matrices.clear(); //on clear pour s'assurer de bien toujours avoir un nombre correcte de matrices. (et pas les accumuler)
-    for (size_t i{0}; i < board.size(); i++)
-    {
-        if (board[i])
-        {
-            glm::vec2 position2D = from_index_to_2D_pos(i);
-            glm::vec3 position3D = from_2D_pos_to_3D_pos(position2D);
-            glm::mat4 matrice_piece = glm::translate(glm::mat4(1.0f),position3D);
-            m_model_matrices.push_back(matrice_piece);
-        }
-    }
-}
+// void Model3D::fill_matrices(std::array<std::unique_ptr<Piece>, 64>&board)
+// {
+//     m_model_matrices.clear(); //on clear pour s'assurer de bien toujours avoir un nombre correcte de matrices. (et pas les accumuler)
+//     for (size_t i{0}; i < board.size(); i++)
+//     {
+//         if (board[i])
+//         {
+//             PieceType piece_type = board[i]->get_type();
+//             Color piece_color = board[i]->get_color();
+
+//             glm::vec2 position2D = from_index_to_2D_pos(i);
+//             glm::vec3 position3D = from_2D_pos_to_3D_pos(position2D);
+//             glm::mat4 matrice_piece = glm::translate(glm::mat4(1.0f),position3D);
+//             m_model_matrices.push_back(matrice_piece);
+//         }
+//     }
+// }
 
 
 // render mon mesh
@@ -111,4 +114,14 @@ void Model3D::move(const glm::vec2 &position)
         model_matrix = glm::translate(glm::mat4(1.0f), glm::vec3(position.x,0,position.y));
     }
 
+}
+
+void Model3D::push_matrix(const glm::mat4& matrix)
+{
+    m_model_matrices.push_back(matrix);
+}
+
+void Model3D::clear_matrices()
+{
+    m_model_matrices.clear();
 }
